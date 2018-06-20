@@ -241,8 +241,8 @@ defmodule Ecto.Migration do
 
     To define a reference in a migration, see `Ecto.Migration.references/2`
     """
-    defstruct name: nil, table: nil, column: :id, type: :bigserial, on_delete: :nothing, on_update: :nothing
-    @type t :: %__MODULE__{table: String.t, column: atom, type: atom, on_delete: atom, on_update: atom}
+    defstruct name: nil, table: nil, column: :id, type: :bigserial, on_delete: :nothing, on_update: :nothing, prefix: :nil
+    @type t :: %__MODULE__{table: String.t, column: atom, type: atom, on_delete: atom, on_update: atom, prefix: String.t}
   end
 
   defmodule Constraint do

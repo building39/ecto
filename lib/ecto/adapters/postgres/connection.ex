@@ -905,13 +905,13 @@ if Code.ensure_loaded?(Postgrex) do
 
     defp reference_expr(%Reference{} = ref, table, name),
       do: [" CONSTRAINT ", reference_name(ref, table, name), " REFERENCES ",
-           quote_table(table.prefix, ref.table), ?(, quote_name(ref.column), ?),
+           quote_table(get_prefix(ref, table), ref.table), ?(, quote_name(ref.column), ?),
            reference_on_delete(ref.on_delete), reference_on_update(ref.on_update)]
 
     defp constraint_expr(%Reference{} = ref, table, name),
       do: [", ADD CONSTRAINT ", reference_name(ref, table, name), ?\s,
            "FOREIGN KEY (", quote_name(name),
-           ") REFERENCES ", quote_table(table.prefix, ref.table), ?(, quote_name(ref.column), ?),
+           ") REFERENCES ", quote_table(get_prefix(ref, table), ref.table), ?(, quote_name(ref.column), ?),
            reference_on_delete(ref.on_delete), reference_on_update(ref.on_update)]
 
     defp reference_name(%Reference{name: nil}, table, column),
@@ -953,6 +953,23 @@ if Code.ensure_loaded?(Postgrex) do
         error!(nil, "bad field name #{inspect name}")
       end
       [?", name, ?"]
+    end
+
+    defp get_prefix(ref, table) do
+      ref_prefix = Map.get(ref, :prefix, nil)
+      table_prefix = Map.get(table, :prefix, nil)
+      cond do
+        is_atom(ref_prefix) ->
+           Atom.to_string(ref_prefix)
+        ref_prefix != nil and ref_prefix != "" ->
+          ref_prefix
+        is_atom(table_prefix) ->
+           Atom.to_string(table_prefix)
+        table_prefix != nil and table_prefix != "" ->
+          table_prefix
+        true ->
+          nil
+      end
     end
 
     defp quote_table(nil, name),    do: quote_table(name)
